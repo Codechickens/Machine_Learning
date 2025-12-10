@@ -1,4 +1,4 @@
-import numpy as np 
+import numpy as np
 import matplotlib.pyplot as plt
 
 class RidgeRegression:
@@ -7,21 +7,20 @@ class RidgeRegression:
         self.weights = None
 
     def fit(self, X, y):
-        # Add bias term to feature matrix
+        #Add bias term to feature matrix
         X_b = np.c_[np.ones((X.shape[0], 1)), X]
-
-        # Closed-form solution for Ridge Regression and print weights
         n_features = X_b.shape[1]
+        # Create identity matrix (excluding bias term)
         I = np.eye(n_features)
-        I[0, 0] = 0  # Do not regularize the bias term
+        I[0, 0] = 0
+        # Compute weights using closed-form solution
         self.weights = np.linalg.inv(X_b.T @ X_b + self.lambda_ * I) @ (X_b.T @ y)
         print("Weights:", self.weights)
-
 
     def predict(self, X):
         X_b = np.c_[np.ones((X.shape[0], 1)), X]
         return X_b @ self.weights
-
+    
     def plot_regression_line(self, X, y):
         plt.scatter(X, y, color='blue', label='Data points')
         X_plot = np.linspace(X.min(), X.max(), 100).reshape(-1, 1)
@@ -33,12 +32,10 @@ class RidgeRegression:
         plt.legend()
         plt.show()
 
-# Example usage
-# Generate synthetic data
 data = np.loadtxt("C:\\Users\\BACHDO\\Documents\\GitHub\\train_data\\drive-download-20251209T073956Z-1-001\\data2.csv", delimiter=",", skiprows=1)
-X = data[:, 0]
+X = data[:, 0]  # Use
 y = data[:, -1]
-# Fit Ridge Regression model
+
 model = RidgeRegression(lambda_=1.0)
 model.fit(X, y)
 

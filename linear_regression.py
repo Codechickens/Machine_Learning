@@ -17,7 +17,6 @@ class LinearRegression:
     def predict(self, X):
         X_b = np.c_[np.ones((X.shape[0], 1)), X]
         return X_b @ self.weights
-        print(self.weights)
 
     def plot_regression_line(self, X, y):
         plt.scatter(X, y, color='blue', label='Data points')
@@ -33,7 +32,7 @@ class LinearRegression:
 # Example usage
 # Generate synthetic data
 data = np.loadtxt("C:\\Users\\BACHDO\\Documents\\GitHub\\train_data\\drive-download-20251209T073956Z-1-001\\data2.csv", delimiter=",", skiprows=1)
-X = data[:, 0]
+X = data[:, 0]  # Use both X1 and X2 as features
 y = data[:, -1]
 
 model = LinearRegression()
