@@ -2,12 +2,15 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 class LassoRegression:
+
+	# Khởi tạo với hệ số alpha và số vòng lặp tối đa
 	def __init__(self, alpha=1.0, n_iter=1000):
 		self.alpha = alpha
 		self.n_iter = n_iter
 		self.coef_ = None
 		self.intercept_ = None
 
+	# Hàm soft thresholding để cập nhật trọng số
 	def soft_threshold(self, rho, lam):
 		if rho < -lam:
 			return rho + lam
@@ -15,16 +18,19 @@ class LassoRegression:
 			return rho - lam
 		else:
 			return 0.0
-
+		
+	# Huấn luyện mô hình sử dụng coordinate descent
 	def fit(self, X, y):
 		X_b = np.c_[np.ones((X.shape[0], 1)), X]
-		n_samples, n_features = X_b.shape
-		w = np.zeros(n_features)
+		n_samples, n_features = X_b.shape # Lấy số mẫu và số đặc trưng
+		w = np.zeros(n_features) # Khởi tạo trọng số bằng 0
+
+		# Cập nhật trọng số qua các vòng lặp
 		for _ in range(self.n_iter):
 			for j in range(n_features):
 				X_j = X_b[:, j]
-				y_pred = X_b @ w
-				residual = y - y_pred + w[j] * X_j
+				y_pred = X_b @ w # Dự đoán hiện tại
+				residual = y - y_pred + w[j] * X_j #
 				rho = X_j @ residual
 				if j == 0:
 					w[j] = rho / (X_j @ X_j)
@@ -32,35 +38,30 @@ class LassoRegression:
 					w[j] = self.soft_threshold(rho, self.alpha) / (X_j @ X_j)
 		self.intercept_ = w[0]
 		self.coef_ = w[1:]
-		Wa = np.concatenate(([self.intercept_], self.coef_))
-		print("Weights:", Wa)
-
+		print("Lasso regression weights:", w)	
+			
+	# Dự đoán giá trị mới
 	def predict(self, X):
 		X_b = np.c_[np.ones((X.shape[0], 1)), X]
 		w = np.concatenate(([self.intercept_], self.coef_))
 		return X_b @ w
 
-	def plot_regression_line(self, X, y):
-		if X.ndim == 1 or X.shape[1] == 1:
-			plt.scatter(X, y, color='blue', label='Data points')
-			X_plot = np.linspace(X.min(), X.max(), 100).reshape(-1, 1)
-			y_plot = self.predict(X_plot)
-			plt.plot(X_plot, y_plot, color='red', label='Lasso Regression Line')
-			plt.xlabel('Feature')
-			plt.ylabel('Target')
-			plt.title('Lasso Regression')
-			plt.legend()
-			plt.show()
 		
 
 # Example usage
-data = np.loadtxt("C:\\Users\\BACHDO\\Documents\\GitHub\\train_data\\drive-download-20251209T073956Z-1-001\\data2.csv", delimiter=",", skiprows=1)
-X = data[:, :2]  # Sử dụng cả X1 và X2 làm feature
+data = np.loadtxt("C:\\Users\\BACHDO\\Documents\\GitHub\\train_data\\drive-download-20251209T073956Z-1-001\\data3.csv", delimiter=",", skiprows=2)
+X = data[:, 0] 
 y = data[:, -1]
 
 model = LassoRegression(alpha=1.0, n_iter=1000)
 model.fit(X, y)
 
 # Predict and plot
-model.plot_regression_line(X, y)
-
+predictions = model.predict(X)
+plt.scatter(X, y, color='blue', label='Dữ liệu đầu vào')
+plt.plot(X, predictions, color='red', label='Đường hồi quy')
+plt.xlabel('X values')
+plt.ylabel('Y values')
+plt.title('Lasso Regression từ con số 0')
+plt.legend()
+plt.show()

@@ -1,42 +1,35 @@
+# khai báo các thư viện cần thiết
+
 import numpy as np 
 import matplotlib.pyplot as plt
 
+# Định nghĩa lớp LinearRegression từ đầu
+
 class LinearRegression:
     def __init__(self):
-        self.weights = None
+        self.w = None
 
     def fit(self, X, y):
-        # Add bias term to feature matrix
+        # Thêm cột bias (hệ số chặn) vào ma trận X
+
         X_b = np.c_[np.ones((X.shape[0], 1)), X]
 
-        # Closed-form solution for Linear Regression and print weights
-        self.weights = np.linalg.inv(X_b.T @ X_b ) @ (X_b.T @ y)
-        print("Weights:", self.weights)
+        # Công thức nghiệm đóng để tính trọng số: (X_b^T * X_b)^-1 * X_b^T * y
+
+        self.w = np.linalg.inv(X_b.T @ X_b ) @ (X_b.T @ y)
+        print("Linear regression weights:", self.w)
 
 
     def predict(self, X):
         X_b = np.c_[np.ones((X.shape[0], 1)), X]
-        return X_b @ self.weights
+        return np.dot(X_b, self.w)
 
-    def plot_regression_line(self, X, y):
-        plt.scatter(X, y, color='blue', label='Data points')
-        X_plot = np.linspace(X.min(), X.max(), 100).reshape(-1, 1)
-        y_plot = self.predict(X_plot)
-        plt.plot(X_plot, y_plot, color='red', label='Linear Regression Line')
-        plt.xlabel('Feature')
-        plt.ylabel('Target')
-        plt.title('Linear Regression')
-        plt.legend()
-        plt.show()
 
-# Example usage
-# Generate synthetic data
+# Tải dữ liệu từ file CSV
 data = np.loadtxt("C:\\Users\\BACHDO\\Documents\\GitHub\\train_data\\drive-download-20251209T073956Z-1-001\\data2.csv", delimiter=",", skiprows=1)
-X = data[:, 0]  # Use both X1 and X2 as features
-y = data[:, -1]
+X = data[:, 0] #Dùng cột X1 làm biến độc lập  
+y = data[:, -1] #Dùng cột Y làm biến phụ thuộc
 
 model = LinearRegression()
 model.fit(X, y)
 
-    # Predict and plot
-model.plot_regression_line(X, y)
