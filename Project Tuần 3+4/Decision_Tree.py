@@ -43,17 +43,28 @@ class DecisionTree:
         return Node(best_feat, best_thresh, left, right)
 
     def _best_split(self, X, y, n_features):
-        best_gini = 999
+        best_gini = float('inf')
         split_idx, split_thresh = None, None
+        
         for feat_idx in range(n_features):
-            thresholds = np.unique(X[:, feat_idx])
+            # Consider midpoints between sorted unique values for better splits
+            unique_vals = np.unique(X[:, feat_idx])
+            if len(unique_vals) == 1:
+                continue
+                
+            thresholds = (unique_vals[:-1] + unique_vals[1:]) / 2
+            
             for threshold in thresholds:
-                left_y = y[X[:, feat_idx] <= threshold]
-                right_y = y[X[:, feat_idx] > threshold]
+                left_mask = X[:, feat_idx] <= threshold
+                right_mask = ~left_mask
+                
+                left_y = y[left_mask]
+                right_y = y[right_mask]
                 
                 m, m_l, m_r = len(y), len(left_y), len(right_y)
                 if m_l == 0 or m_r == 0: continue
                 
+                # Weighted average Gini impurity
                 current_gini = (m_l/m) * self._gini(left_y) + (m_r/m) * self._gini(right_y)
                 if current_gini < best_gini:
                     best_gini, split_idx, split_thresh = current_gini, feat_idx, threshold
