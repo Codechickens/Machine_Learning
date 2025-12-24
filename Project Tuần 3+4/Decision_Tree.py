@@ -34,6 +34,11 @@ class DecisionTree:
 
         # Tìm điểm chia tốt nhất
         best_feat, best_thresh = self._best_split(X, y, n_features)
+        
+        # If no good split found, create leaf
+        if best_feat is None:
+            leaf_value = Counter(y).most_common(1)[0][0]
+            return Node(value=leaf_value)
 
         # Tạo cây con (Recursive)
         left_idxs = X[:, best_feat] <= best_thresh
@@ -47,14 +52,11 @@ class DecisionTree:
         split_idx, split_thresh = None, None
         
         for feat_idx in range(n_features):
-            # Consider midpoints between sorted unique values for better splits
             unique_vals = np.unique(X[:, feat_idx])
             if len(unique_vals) == 1:
                 continue
                 
-            thresholds = (unique_vals[:-1] + unique_vals[1:]) / 2
-            
-            for threshold in thresholds:
+            for threshold in unique_vals:
                 left_mask = X[:, feat_idx] <= threshold
                 right_mask = ~left_mask
                 
@@ -64,10 +66,10 @@ class DecisionTree:
                 m, m_l, m_r = len(y), len(left_y), len(right_y)
                 if m_l == 0 or m_r == 0: continue
                 
-                # Weighted average Gini impurity
                 current_gini = (m_l/m) * self._gini(left_y) + (m_r/m) * self._gini(right_y)
                 if current_gini < best_gini:
                     best_gini, split_idx, split_thresh = current_gini, feat_idx, threshold
+        
         return split_idx, split_thresh
 
     def predict(self, X):
